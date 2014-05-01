@@ -1,0 +1,11 @@
+mps-youtube (0.01.44-2) unstable; urgency=low
+
+  * Updated manpages 
+
+ -- Zlatan Todoric <zlatan.todoric@gmail.com>  Fri, 02 May 2014 00:07:41 +0200
+
+mps-youtube (0.01.44-1) unstable; urgency=low
+
+  * Initial release (Closes: #738838) 
+
+ -- Zlatan Todoric <zlatan.todoric@gmail.com>  Wed, 12 Feb 2014 23:17:36 +0100

@@ -1,0 +1,18 @@
+Source: mps-youtube
+Section: utils
+Priority: extra
+Maintainer: Zlatan Todoric <zlatan.todoric@gmail.com>
+Build-Depends: debhelper (>= 9), dh-python, python
+Standards-Version: 3.9.5
+Homepage: https://github.com/np1/mps-youtube
+XS-Python-Version: current
+
+Package: mps-youtube
+Architecture: any
+Depends: ${misc:Depends}, python-pafy, mplayer, python 
+XB-Python-Version: ${python:Versions}
+Provides: ${python:Provides}
+Description: Terminal based YouTube jukebox with playlist management
+ This project is based on mps so it searches and streams music, creates
+ playlists and uses YouTube as a source of content and can play and download 
+ video as well as audio.
