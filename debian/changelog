@@ -1,3 +1,15 @@
+mps-youtube (0.01.44-4) unstable; urgency=low
+
+  * debian/control: Updated to include mpv as other choice (Closes: #749516)
+
+ -- Zlatan Todoric <zlatan.todoric@gmail.com>  Tue, 27 May 2014 19:18:29 +0200
+
+mps-youtube (0.01.44-3) unstable; urgency=low
+
+  * debian/control: Updated package description so its more clear to user
+
+ -- Zlatan Todoric <zlatan.todoric@gmail.com>  Sat, 10 May 2014 17:42:02 +0200
+
 mps-youtube (0.01.44-2) unstable; urgency=low
 
   * Updated manpages 

@@ -9,10 +9,12 @@ XS-Python-Version: current
 
 Package: mps-youtube
 Architecture: any
-Depends: ${misc:Depends}, python-pafy, mplayer, python 
+Depends: ${misc:Depends}, python-pafy, mplayer | mpv, python 
 XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
 Description: Terminal based YouTube jukebox with playlist management
- This project is based on mps so it searches and streams music, creates
- playlists and uses YouTube as a source of content and can play and download 
- video as well as audio.
+ This project is a terminal based YouTube client with an interactive text 
+ interface and in-built help. It can be used to search YouTube, create local 
+ playlists to queue your favourite content, play audio or video (launched in 
+ external player) and can download YouTube content in various formats (mp4, 
+ flv, webm, ogg, m4a, m4v and 3gp).
