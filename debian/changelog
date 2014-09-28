@@ -1,3 +1,11 @@
+mps-youtube (0.01.46-3) unstable; urgency=low
+
+  * debian/control: added python-setuptools to Build-Depends (Closes:#761607)
+    Thanks to Santiago Torres Batan on suggestion
+  * Change in maintainers email address
+
+ -- Zlatan Todoric <zlatan@riseup.net>  Sun, 28 Sep 2014 13:25:12 +0200
+
 mps-youtube (0.01.46-2) unstable; urgency=low
 
   * debian/control: removing virtual package as dependency, added mplayer2
