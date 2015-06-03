@@ -9,7 +9,7 @@ X-Python3-Version: >= 3.4
 
 Package: mps-youtube
 Architecture: all
-Depends: ${misc:Depends}, python3-pafy (>= 0.3.74), mplayer2 | mpv, python3, ffmpeg | avconv,  ${python3:Depends}
+Depends: ${misc:Depends}, python3-pafy (>= 0.3.74), mplayer2 | mpv, python3, ffmpeg | avconv,  ${python3:Depends}, python3-pkg-resources
 Recommends: python-notify, xclip
 Description: Terminal based YouTube jukebox with playlist management
  This project is a terminal based YouTube client with an interactive text 

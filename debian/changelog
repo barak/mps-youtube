@@ -1,3 +1,10 @@
+mps-youtube (0.2.5-2) unstable; urgency=medium
+
+  * debian/mpsyt.1: correct the minus sign so lintian stops complaining
+  * debian/control: add python3-pkg-resources to Depends
+
+ -- Zlatan Todoric <zlatan@riseup.net>  Wed, 03 Jun 2015 19:17:28 +0200
+
 mps-youtube (0.2.5-1) unstable; urgency=medium
 
   * New upstream release
