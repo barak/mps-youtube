@@ -1,3 +1,9 @@
+mps-youtube (0.2.5-4) unstable; urgency=medium
+
+  * Fixing FTBFS be adding pafy to Build-Depends (Closes:#802102)
+
+ -- Zlatan Todoric <zlatan@riseup.net>  Sun, 25 Oct 2015 14:14:17 +0100
+
 mps-youtube (0.2.5-3) unstable; urgency=low
 
   * debian/upstream: added upstream key
