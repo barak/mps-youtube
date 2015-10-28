@@ -1,3 +1,11 @@
+mps-youtube (0.2.5-5) unstable; urgency=medium
+
+  * debian/control: replace python-notify with libnotify4 
+  * debian/control: remove X-Python3-Version (not needed)
+  * mpsyt.1: manpage rewritten to point to excellent built-in help
+
+ -- Zlatan Todoric <zlatan@riseup.net>  Wed, 28 Oct 2015 21:02:01 +0100
+
 mps-youtube (0.2.5-4) unstable; urgency=medium
 
   * Fixing FTBFS be adding pafy to Build-Depends (Closes:#802102)
