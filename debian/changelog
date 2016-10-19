@@ -1,3 +1,12 @@
+mps-youtube (0.2.7.1-2) unstable; urgency=medium
+
+  * remove mplayer2 and libav-tools from Depends (Closes:#841182)
+  * add python3-gi and python3-dbus to Recommends for mpris2 support
+  * upstream pafy (Closes:#825169)
+  * change in maintainers email address
+
+ -- Zlatan Todoric <zlatan@debian.org>  Wed, 19 Oct 2016 10:44:23 +0200
+
 mps-youtube (0.2.7.1-1) unstable; urgency=medium
 
   * New upstream release
