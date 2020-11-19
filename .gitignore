@@ -1,14 +1,10 @@
 *.py[cod]
-*.py
 otherstuff/
 pafy.py
-pmsyt.py
 changelog
+test*
 MANIFEST
-
-# C extensions
-*.so
-
+.dev
 # Packages
 *.egg
 *.egg-info
@@ -18,25 +14,3 @@ eggs
 parts
 bin
 var
-sdist
-develop-eggs
-.installed.cfg
-lib
-lib64
-pmsold
-
-# Installer logs
-pip-log.txt
-
-# Unit test / coverage reports
-.coverage
-.tox
-nosetests.xml
-
-# Translations
-*.mo
-
-# Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
