@@ -1,3 +1,22 @@
+mps-youtube (0.2.8-1) unstable; urgency=medium
+
+  * New upstream release
+  * Update uscan support file
+  * Swizzle homepage to current upstream homepage.
+  * Trim trailing whitespace.
+  * Use secure copyright file specification URI.
+  * Bump debhelper from deprecated 9 to 13.
+  * Set debhelper-compat version in Build-Depends.
+  * Change priority extra to priority optional.
+  * Set upstream metadata fields.
+  * Bump Standards-Version. No changes required.
+  * Disable build-time tests on more version of Python.
+  * Rules do not require root.
+  * Add salsa packaging repo.
+  * Configure git-buildpackage to use upstream tags.
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 19 Nov 2020 21:23:36 +0000
+
 mps-youtube (0.2.7.1-2) unstable; urgency=medium
 
   * remove mplayer2 and libav-tools from Depends (Closes:#841182)
@@ -19,7 +38,7 @@ mps-youtube (0.2.7.1-1) unstable; urgency=medium
 
 mps-youtube (0.2.5-5) unstable; urgency=medium
 
-  * debian/control: replace python-notify with libnotify4 
+  * debian/control: replace python-notify with libnotify4
   * debian/control: remove X-Python3-Version (not needed)
   * mpsyt.1: manpage rewritten to point to excellent built-in help
 
@@ -34,7 +53,7 @@ mps-youtube (0.2.5-4) unstable; urgency=medium
 mps-youtube (0.2.5-3) unstable; urgency=low
 
   * debian/upstream: added upstream key
-  * debian/watch: updated for gpg release scans 
+  * debian/watch: updated for gpg release scans
   * debian/control: corrected dependency name from avconv to libav-tools
   * debian/control: make mpv first choice instead of mplayer2
   * debian/control: remove python3, we have ${python3:Depends}
@@ -43,7 +62,7 @@ mps-youtube (0.2.5-3) unstable; urgency=low
 
 mps-youtube (0.2.5-2) unstable; urgency=medium
 
-  * debian/mpsyt.1: correct the minus sign so lintian stops complaining 
+  * debian/mpsyt.1: correct the minus sign so lintian stops complaining
   * debian/control: add python3-pkg-resources to Depends
 
  -- Zlatan Todoric <zlatan@riseup.net>  Wed, 03 Jun 2015 19:17:28 +0200
@@ -97,12 +116,12 @@ mps-youtube (0.01.44-3) unstable; urgency=low
 
 mps-youtube (0.01.44-2) unstable; urgency=low
 
-  * Updated manpages 
+  * Updated manpages
 
  -- Zlatan Todoric <zlatan.todoric@gmail.com>  Fri, 02 May 2014 00:07:41 +0200
 
 mps-youtube (0.01.44-1) unstable; urgency=low
 
-  * Initial release (Closes: #738838) 
+  * Initial release (Closes: #738838)
 
  -- Zlatan Todoric <zlatan.todoric@gmail.com>  Wed, 12 Feb 2014 23:17:36 +0100

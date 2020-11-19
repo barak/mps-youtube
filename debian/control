@@ -1,18 +1,22 @@
 Source: mps-youtube
 Section: utils
-Priority: extra
+Priority: optional
 Maintainer: Zlatan Todoric <zlatan@debian.org>
-Build-Depends: debhelper (>= 9), dh-python, python3-all, python3-setuptools, python3-pafy (>= 0.5.1)
-Standards-Version: 3.9.8
-Homepage: https://github.com/np1/mps-youtube
+Uploaders: Barak A. Pearlmutter <bap@debian.org>
+Build-Depends: debhelper-compat (= 13), dh-python, python3-all, python3-setuptools, python3-pafy (>= 0.5.1)
+Standards-Version: 4.5.0
+Rules-Requires-Root: no
+Homepage: https://github.com/mps-youtube/mps-youtube
+Vcs-Git: https://salsa.debian.org/debian/mps-youtube.git
+Vcs-Browser: https://salsa.debian.org/debian/mps-youtube
 
 Package: mps-youtube
 Architecture: all
 Depends: ${misc:Depends}, python3-pafy (>= 0.5.1), mpv, ffmpeg,  ${python3:Depends}, python3-pkg-resources
 Recommends: libnotify4, xclip, python3-dbus, python3-gi
 Description: Terminal based YouTube jukebox with playlist management
- This project is a terminal based YouTube client with an interactive text 
- interface and in-built help. It can be used to search YouTube, create local 
- playlists to queue your favourite content, play audio or video (launched in 
- external player) and can download YouTube content in various formats (mp4, 
+ This project is a terminal based YouTube client with an interactive text
+ interface and in-built help. It can be used to search YouTube, create local
+ playlists to queue your favourite content, play audio or video (launched in
+ external player) and can download YouTube content in various formats (mp4,
  flv, webm, ogg, m4a, m4v and 3gp).
