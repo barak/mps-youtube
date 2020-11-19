@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import json
 import socket
 import time
+import copy
 import re
 import os
 from threading import Thread
@@ -30,7 +31,6 @@ from threading import Thread
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
-from gi.repository import GLib
 
 
 IDENTITY = 'mps-youtube'
@@ -51,6 +51,10 @@ class Mpris2Controller(object):
         """
             Constructs an MPRIS controller. Note, you must call acquire()
         """
+        # Do not import in main process to prevent conflict with pyperclip
+        # (https://github.com/mps-youtube/mps-youtube/issues/461)
+        from gi.repository import GLib
+
         self.mpris = None
         self.bus = None
         self.main_loop = GLib.MainLoop()
@@ -470,7 +474,7 @@ class Mpris2MediaPlayer(dbus.service.Object):
             getter for org.freedesktop.DBus.Properties on this object
         """
         if interface_name in self.properties:
-            t = self.properties[interface_name]['read_only'].copy()
+            t = copy.copy(self.properties[interface_name]['read_only'])
             t.update(self.properties[interface_name]['read_write'])
 
             return t
@@ -516,6 +520,10 @@ def main(connection):
     """
 
     mprisctl = Mpris2Controller()
-    mprisctl.acquire()
+    try:
+        mprisctl.acquire()
+    except dbus.exceptions.DBusException:
+        print('mpris interface couldn\'t be initialized. Is dbus properly configured?')
+        return
     mprisctl.run(connection)
     mprisctl.release()

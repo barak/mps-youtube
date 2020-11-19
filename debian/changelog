@@ -1,3 +1,13 @@
+mps-youtube (0.2.7.1-1) unstable; urgency=medium
+
+  * New upstream release
+  * Bumped Standards-Version. No changes required
+  * debian/rules: disabled all tests as they require access to network
+  * debian/copyright: updated years
+  * debian/control: bumped version dependency on python3-pafy
+
+ -- Zlatan Todoric <zlatan@riseup.net>  Mon, 04 Jul 2016 09:50:27 +0200
+
 mps-youtube (0.2.5-5) unstable; urgency=medium
 
   * debian/control: replace python-notify with libnotify4 

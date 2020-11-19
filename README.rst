@@ -3,9 +3,9 @@ mps-youtube
 
 .. image:: https://img.shields.io/pypi/v/mps-youtube.svg
     :target: https://pypi.python.org/pypi/mps-youtube
-.. image:: https://pypip.in/d/mps-youtube/badge.png
+.. image:: https://img.shields.io/pypi/dm/mps-youtube.svg
     :target: https://pypi.python.org/pypi/mps-youtube
-.. image:: https://pypip.in/wheel/mps-youtube/badge.png
+.. image:: https://img.shields.io/pypi/wheel/mps-youtube.svg
     :target: http://pythonwheels.com/
     :alt: Wheel Status
 
@@ -93,6 +93,10 @@ Using `pip <http://www.pip-installer.org>`_::
     
     [sudo] pip3 install mps-youtube
 
+Installing youtube_dl is highly recommended::
+
+    [sudo] pip3 install youtube_dl
+
 Additional Mac OS X installation notes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
@@ -104,9 +108,10 @@ Or with `Homebrew <http://brew.sh>`_::
 
     brew install mplayer
 
-
 Additional Windows installation notes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As an alternative to installing with pip, there is a standalone binary available. Go to `Releases <https://github.com/np1/mps-youtube/releases>`_ and download mpsyt-VERSION.exe under downloads for the latest release.
 
 Install the python `colorama <https://pypi.python.org/pypi/colorama>`_ module to get colors (optional)::
 
@@ -118,6 +123,32 @@ Extract the ``mplayer.exe`` file, saving it to the folder that ``mpsyt.exe`` res
 
 Alternatively to mplayer, use ``mpv.exe`` which can be downloaded from: http://mpv.io/installation/
 
+Run via Docker container
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using `Docker <http://www.docker.com>`_, run with::
+
+    sudo docker run -v /dev/snd:/dev/snd -it --rm --privileged --name mpsyt mpsyt
+
+Additional Docker notes
+~~~~~~~~~~~~~~~~~~~~~~~
+
+If you would like to locally build the container you can run the following steps
+
+Check out this repo::
+
+    git clone https://github.com/np1/mps-youtube.git
+
+Enter the directory and run docker build::
+
+    cd mps-youtube
+    sudo docker build -t mpsyt .
+
+Now run the container interactively with::
+
+    sudo docker run -v /dev/snd:/dev/snd -it --rm --privileged --name mpsyt mpsyt
+
+In order to have access to the local sound device (/dev/snd) the container needs to be privileged.
 
 Upgrading
 ---------

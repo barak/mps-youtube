@@ -7,22 +7,26 @@ https://np1.github.com/mps-youtube
 python setup.py sdist bdist_wheel
 """
 
-from setuptools import setup
 import sys
+import os
+
+if sys.version_info < (3,0):
+    sys.exit("Mps-youtube requires python 3.")
+
+from setuptools import setup
 
 options = dict(
     name="mps-youtube",
-    version="0.2.5",
+    version="0.2.7.1",
     description="Terminal based YouTube player and downloader",
     keywords=["video", "music", "audio", "youtube", "stream", "download"],
     author="np1",
     author_email="np1nagev@gmail.com",
     url="http://github.com/np1/mps-youtube",
     download_url="https://github.com/np1/mps-youtube/tarball/master",
-    packages=['mps_youtube'],
-    entry_points=dict(console_scripts=['mpsyt = mps_youtube:main.main']),
-    install_requires=['pafy >= 0.3.74'],
-    package_data={"": ["LICENSE", "README.rst", "CHANGELOG"]},
+    packages=['mps_youtube', 'mps_youtube.commands'],
+    entry_points={'console_scripts': ['mpsyt = mps_youtube:main.main']},
+    install_requires=['pafy >= 0.3.82, != 0.4.0, != 0.4.1, != 0.4.2'],
     classifiers=[
         "Topic :: Utilities",
         "Topic :: Internet :: WWW/HTTP",
@@ -48,10 +52,15 @@ options = dict(
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
     ],
-    options={"py2exe": {"excludes": "readline, win32api, win32con, xerox, "
-	                            "dbus, gi, urllib.unquote_plus, "
-				    "urllib.urlencode",
-                       "bundle_files": 1}},
+    options={
+        "py2exe": {
+            "excludes": ("readline, win32api, win32con, dbus, gi,"
+                         " urllib.unquote_plus, urllib.urlencode,"
+                         " PyQt4, gtk"),
+            "bundle_files": 1
+        }
+    },
+    package_data={"": ["LICENSE", "README.rst", "CHANGELOG"]},
     long_description=open("README.rst").read()
 )
 
@@ -59,13 +68,14 @@ if sys.platform.startswith('linux'):
     # Install desktop file. Required for mpris on Ubuntu
     options['data_files'] = [('share/applications/', ['mps-youtube.desktop'])]
 
-try:
-    import py2exe
-    # Only setting these when py2exe imports successfully prevents warnings
-    # in easy_install
-    options['console'] = ['mpsyt']
-    options['zipfile'] = None
-except ImportError:
-    pass
+if os.name == "nt":
+    try:
+        import py2exe
+        # Only setting these when py2exe imports successfully prevents warnings
+        # in easy_install
+        options['console'] = ['mpsyt']
+        options['zipfile'] = None
+    except ImportError:
+        pass
 
 setup(**options)
