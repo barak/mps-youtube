@@ -1,3 +1,15 @@
+mps-youtube (0.01.46-2) unstable; urgency=low
+
+  * debian/control: removing virtual package as dependency, added mplayer2
+
+ -- Zlatan Todoric <zlatan.todoric@gmail.com>  Sun, 06 Jul 2014 13:12:23 +0200
+
+mps-youtube (0.01.46-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Zlatan Todoric <zlatan.todoric@gmail.com>  Tue, 27 May 2014 19:36:49 +0200
+
 mps-youtube (0.01.44-4) unstable; urgency=low
 
   * debian/control: Updated to include mpv as other choice (Closes: #749516)

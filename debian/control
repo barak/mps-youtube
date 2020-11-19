@@ -9,7 +9,7 @@ XS-Python-Version: current
 
 Package: mps-youtube
 Architecture: any
-Depends: ${misc:Depends}, python-pafy, mplayer | mpv, python 
+Depends: ${misc:Depends}, python-pafy, mplayer2 | mpv, python 
 XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
 Description: Terminal based YouTube jukebox with playlist management
