@@ -1,8 +1,7 @@
 *.py[cod]
 otherstuff/
 pafy.py
-changelog
-test*
+vi.py
 MANIFEST
 .dev
 # Packages
@@ -14,3 +13,4 @@ eggs
 parts
 bin
 var
+tags

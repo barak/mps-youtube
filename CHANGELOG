@@ -1,3 +1,108 @@
+Version 0.2.5
+1 June 2015
+
+- Support python 3 only (will not run with python 2)
+- Fix progress bar bug on Windows (#215, #223)
+- Fix bug in playlist search (#282)
+- Add user_order setting for separate order of user searches (lol768) (#277)
+- Add mix command (lol768) (#241, #283)
+- Add page count with total number of pages and current page (JKatzwinkel)
+- Fix UnicodeEncodeError on non-unicode terminals
+- Install .desktop in setup.py so it does not have to be installed manually
+    required for Ubuntu sound menu support
+
+-------------------------------------------------------------------------------
+
+Version 0.2.4
+13 May 2015
+
+ - Fix issue with rate-limiting in "album" command (#217)
+ - Implement support for MPRIS (hrnr and ids1024) (#191, #210)
+ - Fix display issue with small terminal width (#215)
+ - Use version 3 of the youtube api (JKatzwinkel, ids1024, and lol768) (#256)
+     version 2 was disabled by youtube and no longer works
+
+-------------------------------------------------------------------------------
+
+Version 0.2.3
+17 February 2015
+
+ - Fix issue with opening old playlist file (#214)
+ - Fix issue with "set" command
+ - Metadata tagging of downloaded audio files
+     requires ffmpeg or avconv
+     early implementation, uses YouTube video title, needs more work
+
+-------------------------------------------------------------------------------
+
+Version 0.2.2
+14 February 2015
+
+- Implement skip to previous track (ids1024) #175 #18 #14
+    Use > and < keys for next and prev track, q for quit (was ctrl-c)
+    mpv / mplayer input.conf can be imported to use custom keymappings
+
+- Implement optional external download application (ids1024 and np1) #198 #132
+    enter "help dl-command" for more info
+
+- Show stream quality on status line (Brebiche38) #134 #163
+
+- Implement support for creating Windows builds with py2exe (ids1024) #190
+    Use setup.py in py2exe branch
+
+- Fix progress bar for mpv 0.7 (ids1024) #155 #161
+    Resolves issues with playback looping
+
+- Fix mps-youtube does not run on FreeBSD (nivit)
+
+- Fix YouTube comments overshoot window size
+
+- Fix issue with audio remux when using `d` download command
+
+-------------------------------------------------------------------------------
+
+Version 0.2.1
+27 November 2014
+
+[Bugfix] - Detect installed player on installation (#149)
+
+-------------------------------------------------------------------------------
+
+Version 0.2.0
+25 November 2014
+
+- Auto detect terminal window size
+
+- Transcode audio to MP3 and other formats (requires ffmpeg or avconv)
+
+- Enabled da and dv commands for playlist search results
+
+- Added dapl and dvpl to download YouTube playlist audio/video
+    by url/id to a separate subdirectory (mtahmed) #110
+
+- Progress indicator now works with mpv (previously only mplayer)
+
+- Added option to show system notifications (Alex Nisnevich) #95
+    (can be used with libnotify - notify-send on linux)
+
+- Added overwrite true/false option for downloads (mtahmed) #93
+    (skips download if downloaded file already exists)
+
+- Added copy to clipboard feature #97
+    (requires python xerox module and xclip on linux or pywin32 on windows)
+
+- Remux audio downloads for better file compatibility (#135)
+
+[Bugfix] - Accept two-character length usernames (#99)
+
+[Bugfix] - Expand ~ character in download directory setting (punchagan)
+
+[Bugfix] - Don't truncate filename (YoussF) #122
+
+[Bugfix] - Exit with correct status code
+
+-------------------------------------------------------------------------------
+
 Version 0.01.46
 May 18 2014
 

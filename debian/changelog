@@ -1,3 +1,18 @@
+mps-youtube (0.2.5-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/control: Depends on ffmpeg | libav-tools
+  * debian/control: Recommends added python-notify and xclip
+  * debian/control: bump standards to 3.9.6; no changes needed
+  * debian/control: Architecture change from any to all
+  * Switch to Python 3, Python 2 dropped upstream
+  * changed all dependencies to Python 3 variants
+  * Updated to latest upstream for Youtube APIv3 (Closes:#785704)
+  * Small manpage tweak
+  * debian/rules: using now pybuild
+
+ -- Zlatan Todoric <zlatan@riseup.net>  Mon, 01 Jun 2015 15:12:53 +0200
+
 mps-youtube (0.01.46-3) unstable; urgency=low
 
   * debian/control: added python-setuptools to Build-Depends (Closes:#761607)
