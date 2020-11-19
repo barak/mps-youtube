@@ -81,17 +81,18 @@ def generate_songlist_display(song=False, zeromsg=None):
     g.rprompt = page_msg(g.current_page)
 
     have_meta = all(x.ytid in g.meta for x in g.model)
+
     user_columns = _get_user_columns() if have_meta else []
     maxlength = max(x.length for x in g.model)
     lengthsize = 8 if maxlength > 35999 else 7
-    lengthsize = 5 if maxlength < 6000 else lengthsize
+    lengthsize = 6 if maxlength < 6000 else lengthsize
     reserved = 9 + lengthsize + len(user_columns)
     cw = getxy().width
     cw -= 1
     title_size = cw - sum(1 + x['size'] for x in user_columns) - reserved
     before = [{"name": "idx", "size": 3, "heading": "Num"},
               {"name": "title", "size": title_size, "heading": "Title"}]
-    after = [{"name": "length", "size": lengthsize, "heading": "Time"}]
+    after = [{"name": "length", "size": lengthsize, "heading": "Length"}]
     columns = before + user_columns + after
 
     for n, column in enumerate(columns):
@@ -114,13 +115,13 @@ def generate_songlist_display(song=False, zeromsg=None):
         details['title'] = uea_pad(columns[1]['size'], otitle)
         cat = details.get('category') or '-'
         details['category'] = pafy.get_categoryname(cat)
+        details['ytid'] = x.ytid
         data = []
 
         for z in columns:
             fieldsize, field = z['size'], z['name']
             if len(details[field]) > fieldsize:
                 details[field] = details[field][:fieldsize]
-
             data.append(details[field])
 
         line = fmtrow % tuple(data)
@@ -133,6 +134,7 @@ def generate_songlist_display(song=False, zeromsg=None):
 
 def generate_playlist_display():
     """ Generate list of playlists. """
+
     if not g.ytpls:
         g.message = c.r + "No playlists found!"
         return logo(c.g) + "\n\n"
@@ -167,10 +169,12 @@ def _get_user_columns():
                 "rating": dict(name="rating", size=4, heading="Rtng"),
                 "comments": dict(name="commentCount", size=4, heading="Comm"),
                 "date": dict(name="uploaded", size=8, heading="Date"),
+                "time": dict(name="uploadedTime", size=11, heading="Time"),
                 "user": dict(name="uploaderName", size=10, heading="User"),
                 "likes": dict(name="likes", size=4, heading="Like"),
                 "dislikes": dict(name="dislikes", size=4, heading="Dslk"),
-                "category": dict(name="category", size=8, heading="Category")}
+                "category": dict(name="category", size=8, heading="Category"),
+                "ytid": dict(name="ytid", size=12, heading="Video ID")}
 
     ret = []
     for column in user_columns:
@@ -211,7 +215,7 @@ def logo(col=None, version=""):
     indent, newlines = (0 if x < 0 else x for x in (indent, newlines))
     lines = [" " * indent + l for l in lines]
     logo_txt = "\n".join(lines) + "\n" * newlines
-    return "" if g.debug_mode else logo_txt
+    return "" if g.debug_mode or g.no_textart else logo_txt
 
 
 def playlists_display():

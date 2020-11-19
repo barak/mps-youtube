@@ -13,6 +13,7 @@ import shlex
 from urllib.error import HTTPError, URLError
 
 from . import g, screen, c, streams, history, content, paths, config, util
+from .commands import lastfm
 
 mswin = os.name == "nt"
 not_utf8_environment = mswin or "UTF-8" not in sys.stdout.encoding
@@ -36,17 +37,36 @@ def play_range(songlist, shuffle=False, repeat=False, override=False):
         if hasnext:
             streams.preload(songlist[n + 1], override=override)
 
-        util.set_window_title(song.title + " - mpsyt")
+        if config.SET_TITLE.get:
+            util.set_window_title(song.title + " - mpsyt")
+
+        softrepeat = repeat and len(songlist) == 1
+
+        if g.scrobble:
+            lastfm.set_now_playing(g.artist, g.scrobble_queue[n])
+
         try:
-            returncode = _playsong(song, override=override)
+            video, stream = stream_details(song, override=override, softrepeat=softrepeat)
+            returncode = _playsong(song, stream, video, override=override, softrepeat=softrepeat)
 
         except KeyboardInterrupt:
             logging.info("Keyboard Interrupt")
             util.xprint(c.w + "Stopping...                          ")
             screen.reset_terminal()
             g.message = c.y + "Playback halted" + c.w
+            raise KeyboardInterrupt
             break
-        util.set_window_title("mpsyt")
+
+        # skip forbidden, video removed/no longer available, etc. tracks
+        except TypeError:
+            returncode = 1
+
+        # Don't scrobble if quit prematurely
+        if g.scrobble and returncode != 43:
+            lastfm.scrobble_track(g.artist, g.album, g.scrobble_queue[n])
+
+        if config.SET_TITLE.get:
+            util.set_window_title("mpsyt")
 
         if returncode == 42:
             n -= 1
@@ -110,8 +130,7 @@ def _mplayer_help(short=True):
     """ Mplayer help.  """
     # pylint: disable=W1402
 
-    volume = "[{0}9{1}] volume [{0}0{1}]"
-    volume = volume if short else volume + "      [{0}q{1}] return"
+    volume = "[{0}9{1}] volume [{0}0{1}]      [{0}CTRL-C{1}] return"
     seek = "[{0}\u2190{1}] seek [{0}\u2192{1}]"
     pause = "[{0}\u2193{1}] SEEK [{0}\u2191{1}]       [{0}space{1}] pause"
 
@@ -119,26 +138,18 @@ def _mplayer_help(short=True):
         seek = "[{0}<-{1}] seek [{0}->{1}]"
         pause = "[{0}DN{1}] SEEK [{0}UP{1}]       [{0}space{1}] pause"
 
-    single = "[{0}q{1}] return"
+    single = "[{0}q{1}] next"
     next_prev = "[{0}>{1}] next/prev [{0}<{1}]"
     # ret = "[{0}q{1}] %s" % ("return" if short else "next track")
-    ret = single if short else next_prev
+    ret = single if short and config.AUTOPLAY.get else ""
+    ret = next_prev if not short else ret
     fmt = "    %-20s       %-20s"
     lines = fmt % (seek, volume) + "\n" + fmt % (pause, ret)
     return lines.format(c.g, c.w)
 
 
-def _playsong(song, failcount=0, override=False):
-    """ Play song using config.PLAYER called with args config.PLAYERARGS."""
-    # pylint: disable=R0911,R0912
-    if not config.PLAYER.get or not util.has_exefile(config.PLAYER.get):
-        g.message = "Player not configured! Enter %sset player <player_app> "\
-            "%s to set a player" % (c.g, c.w)
-        return
-
-    if config.NOTIFIER.get:
-        subprocess.Popen(shlex.split(config.NOTIFIER.get) + [song.title])
-
+def stream_details(song, failcount=0, override=False, softrepeat=False):
+    """Fetch stream details for a song."""
     # don't interrupt preloading:
     while song.ytid in g.preloading:
         screen.writestatus("fetching item..")
@@ -148,7 +159,7 @@ def _playsong(song, failcount=0, override=False):
         streams.get(song, force=failcount, callback=screen.writestatus)
 
     except (IOError, URLError, HTTPError, socket.timeout) as e:
-        util.dbg("--ioerror in _playsong call to streams.get %s", str(e))
+        util.dbg("--ioerror in stream_details call to streams.get %s", str(e))
 
         if "Youtube says" in str(e):
             g.message = util.F('cant get track') % (song.title + " " + str(e))
@@ -157,7 +168,7 @@ def _playsong(song, failcount=0, override=False):
         elif failcount < g.max_retries:
             util.dbg("--ioerror - trying next stream")
             failcount += 1
-            return _playsong(song, failcount=failcount, override=override)
+            return stream_details(song, failcount=failcount, override=override, softrepeat=softrepeat)
 
         elif "pafy" in str(e):
             g.message = str(e) + " - " + song.ytid
@@ -165,7 +176,7 @@ def _playsong(song, failcount=0, override=False):
 
     except ValueError:
         g.message = util.F('track unresolved')
-        util.dbg("----valueerror in _playsong call to streams.get")
+        util.dbg("----valueerror in stream_details call to streams.get")
         return
 
     try:
@@ -186,13 +197,15 @@ def _playsong(song, failcount=0, override=False):
         if not stream:
             raise IOError("No streams available")
 
+        return (video, stream)
+
     except (HTTPError) as e:
 
         # Fix for invalid streams (gh-65)
-        util.dbg("----htterror in _playsong call to gen_real_args %s", str(e))
+        util.dbg("----htterror in stream_details call to gen_real_args %s", str(e))
         if failcount < g.max_retries:
             failcount += 1
-            return _playsong(song, failcount=failcount, override=override)
+            return stream_details(song, failcount=failcount, override=override, softrepeat=softrepeat)
         else:
             g.message = str(e)
             return
@@ -205,13 +218,25 @@ def _playsong(song, failcount=0, override=False):
         g.message = c.r + str(errmsg) + c.w
         return
 
+
+def _playsong(song, stream, video, failcount=0, override=False, softrepeat=False):
+    """ Play song using config.PLAYER called with args config.PLAYERARGS."""
+    # pylint: disable=R0911,R0912
+    if not config.PLAYER.get or not util.has_exefile(config.PLAYER.get):
+        g.message = "Player not configured! Enter %sset player <player_app> "\
+            "%s to set a player" % (c.g, c.w)
+        return
+
+    if config.NOTIFIER.get:
+        subprocess.Popen(shlex.split(config.NOTIFIER.get) + [song.title])
+
     size = streams.get_size(song.ytid, stream['url'])
     songdata = (song.ytid, stream['ext'] + " " + stream['quality'],
                 int(size / (1024 ** 2)))
     songdata = "%s; %s; %s Mb" % songdata
     screen.writestatus(songdata)
 
-    cmd = _generate_real_playerargs(song, override, stream, video)
+    cmd = _generate_real_playerargs(song, override, stream, video, softrepeat)
     returncode = _launch_player(song, songdata, cmd)
     failed = returncode not in (0, 42, 43)
 
@@ -221,13 +246,13 @@ def _playsong(song, failcount=0, override=False):
         screen.writestatus("error: retrying")
         time.sleep(1.2)
         failcount += 1
-        return _playsong(song, failcount=failcount, override=override)
+        return _playsong(song, stream, video, failcount=failcount, override=override, softrepeat=softrepeat)
 
     history.add(song)
     return returncode
 
 
-def _generate_real_playerargs(song, override, stream, isvideo):
+def _generate_real_playerargs(song, override, stream, isvideo, softrepeat):
     """ Generate args for player command.
 
     Return args.
@@ -278,9 +303,13 @@ def _generate_real_playerargs(song, override, stream, isvideo):
             util.list_update(pd["ignidx"], args)
 
         if "mplayer" in config.PLAYER.get:
+            if g.volume:
+                util.list_update("-volume", args)
+                util.list_update(str(g.volume), args)
             util.list_update("-really-quiet", args, remove=True)
             util.list_update("-noquiet", args)
             util.list_update("-prefer-ipv4", args)
+
 
         elif "mpv" in config.PLAYER.get:
             if "--ytdl" in g.mpv_options:
@@ -298,6 +327,11 @@ def _generate_real_playerargs(song, override, stream, isvideo):
                 else:
                     util.list_update("--really-quiet", args, remove=True)
                     util.list_update(msglevel, args)
+
+            if g.volume:
+                util.list_update("--volume=" + str(g.volume), args)
+            if softrepeat:
+                util.list_update("--loop-file", args)
 
     elif "vlc" in config.PLAYER.get:
         util.list_update("--play-and-exit", args)
@@ -355,12 +389,21 @@ def _launch_player(song, songdata, cmd):
     # not supported by encoding
     cmd = [util.xenc(i) for i in cmd]
 
-    arturl = "http://i.ytimg.com/vi/%s/default.jpg" % song.ytid
+    metadata = util._get_metadata(song.title)
+
+    if metadata == None :
+        arturl = "https://i.ytimg.com/vi/%s/default.jpg" % song.ytid
+        metadata = (song.ytid, song.title, song.length, arturl, [''], '')
+    else :
+        arturl = metadata['album_art_url']
+        metadata = (song.ytid, metadata['track_title'], song.length, arturl, [metadata['artist']], metadata['album'])
+
     input_file = None
     if ("mplayer" in config.PLAYER.get) or ("mpv" in config.PLAYER.get):
         input_file = _get_input_file()
     sockpath = None
     fifopath = None
+    p = None
 
     try:
         if "mplayer" in config.PLAYER.get:
@@ -378,8 +421,7 @@ def _launch_player(song, songdata, cmd):
                 os.mkfifo(fifopath)
                 cmd.extend(['-input', 'file=' + fifopath])
                 g.mprisctl.send(('mplayer-fifo', fifopath))
-                g.mprisctl.send(('metadata', (song.ytid, song.title,
-                                              song.length, arturl)))
+                g.mprisctl.send(('metadata', metadata))
 
             p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT, bufsize=1)
@@ -398,8 +440,7 @@ def _launch_player(song, songdata, cmd):
 
                 if g.mprisctl:
                     g.mprisctl.send(('socket', sockpath))
-                    g.mprisctl.send(('metadata', (song.ytid, song.title,
-                                                  song.length, arturl)))
+                    g.mprisctl.send(('metadata', metadata))
 
             else:
                 if g.mprisctl:
@@ -407,8 +448,7 @@ def _launch_player(song, songdata, cmd):
                     os.mkfifo(fifopath)
                     cmd.append('--input-file=' + fifopath)
                     g.mprisctl.send(('mpv-fifo', fifopath))
-                    g.mprisctl.send(('metadata', (song.ytid, song.title,
-                                                  song.length, arturl)))
+                    g.mprisctl.send(('metadata', metadata))
 
                 p = subprocess.Popen(cmd, shell=False, stderr=subprocess.PIPE,
                                      bufsize=1)
@@ -420,7 +460,6 @@ def _launch_player(song, songdata, cmd):
         else:
             with open(os.devnull, "w") as devnull:
                 returncode = subprocess.call(cmd, stderr=devnull)
-            p = None
 
         return returncode
 
@@ -489,11 +528,14 @@ def _player_status(po_obj, prefix, songlength=0, mpv=False, sockpath=None):
                     observe_full = True
 
                 if resp.get('event') == 'property-change' and resp['id'] == 1:
-                    elapsed_s = int(resp['data'])
+                    if resp['data'] is not None:
+                        elapsed_s = int(resp['data'])
 
                 elif resp.get('event') == 'property-change' and resp['id'] == 2:
                     volume_level = int(resp['data'])
 
+                if(volume_level and volume_level != g.volume):
+                    g.volume = volume_level
                 if elapsed_s:
                     line = _make_status_line(elapsed_s, prefix, songlength,
                                             volume=volume_level)
@@ -536,6 +578,9 @@ def _player_status(po_obj, prefix, songlength=0, mpv=False, sockpath=None):
                         except ValueError:
                             continue
 
+
+                    if volume_level and volume_level != g.volume:
+                        g.volume = volume_level
                     line = _make_status_line(elapsed_s, prefix, songlength,
                                             volume=volume_level)
 
@@ -570,7 +615,7 @@ def _make_status_line(elapsed_s, prefix, songlength=0, volume=None):
         display_m = display_s // 60
         display_s %= 60
 
-        if display_m >= 100:
+        if display_m >= 60:
             display_h = display_m // 60
             display_m %= 60
 

@@ -7,10 +7,13 @@ import time
 import subprocess
 import collections
 import unicodedata
+import urllib
+import json
+from datetime import datetime, timezone
 
 import pafy
 
-from . import g, c, terminalsize
+from . import g, c, terminalsize, description_parser
 from .playlist import Video
 
 
@@ -82,7 +85,7 @@ def has_exefile(filename):
 def dbg(*args):
     """Emit a debug message."""
     # Uses xenc to deal with UnicodeEncodeError when writing to terminal
-    logging.debug(xenc(i) for i in args)
+    logging.debug(*(xenc(i) for i in args))
 
 
 def utf8_replace(txt):
@@ -95,6 +98,7 @@ def utf8_replace(txt):
     :rtype: str
     """
     sse = sys.stdout.encoding
+    txt = str(txt)
     txt = txt.encode(sse, "replace").decode(sse)
     return txt
 
@@ -220,7 +224,7 @@ def get_pafy(item, force=False, callback=None):
 def getxy():
     """
     Get terminal size, terminal width and max-results.
-    
+
     :rtype: :class:`XYTuple`
     """
     # Import here to avoid circular dependency
@@ -307,12 +311,28 @@ def real_len(u, alt=False):
 
 
 def yt_datetime(yt_date_time):
-    """ Return a time object and locale formated date string. """
+    """ Return a time object, locale formated date string and locale formatted time string. """
     time_obj = time.strptime(yt_date_time, "%Y-%m-%dT%H:%M:%S.%fZ")
     locale_date = time.strftime("%x", time_obj)
+    locale_time = time.strftime("%X", time_obj)
     # strip first two digits of four digit year
     short_date = re.sub(r"(\d\d\D\d\d\D)20(\d\d)$", r"\1\2", locale_date)
-    return time_obj, short_date
+    return time_obj, short_date, locale_time
+
+
+def yt_datetime_local(yt_date_time):
+    """ Return a datetime object, locale converted and formated date string and locale converted and formatted time string. """
+    datetime_obj = datetime.strptime(yt_date_time, "%Y-%m-%dT%H:%M:%S.%fZ")
+    datetime_obj = utc2local(datetime_obj)
+    locale_date = datetime_obj.strftime("%x")
+    locale_time = datetime_obj.strftime("%X")
+    # strip first two digits of four digit year
+    short_date = re.sub(r"(\d\d\D\d\d\D)20(\d\d)$", r"\1\2", locale_date)
+    return datetime_obj, short_date, locale_time
+
+
+def utc2local(utc):
+    return utc.replace(tzinfo=timezone.utc).astimezone(tz=None)
 
 
 def parse_multi(choice, end=None):
@@ -401,6 +421,26 @@ def load_player_info(player):
         g.mplayer_version = _get_mplayer_version(player)
 
 
+def fetch_songs(text,title="Unknown"):
+    return description_parser.parse(text, title)
+
+
+def number_string_to_list(text):
+    """ Parses comma separated lists """
+    text = [x.strip() for x in text.split(",")]
+    vals = []
+    for line in text:
+        k = line
+        if "-" in line:
+            separated = [int(x.strip()) for x in k.split("-")]
+            for number in list(range(separated[0]-1, separated[1])):
+                vals.append(number)
+        else:
+            vals.append(k)
+
+    return [int(x) - 1 for x in vals]
+
+
 def _get_mpv_version(exename):
     """ Get version of mpv as 3-tuple. """
     o = subprocess.check_output([exename, "--version"]).decode()
@@ -420,13 +460,13 @@ def _get_mpv_version(exename):
 
 def _get_mplayer_version(exename):
     o = subprocess.check_output([exename]).decode()
-    m = re.search('^MPlayer SVN[\s-]r([0-9]+)', o, re.MULTILINE|re.IGNORECASE)
+    m = re.search('MPlayer SVN[\s-]r([0-9]+)', o, re.MULTILINE|re.IGNORECASE)
 
     ver = 0
     if m:
         ver = int(m.groups()[0])
     else:
-        m = re.search('^MPlayer ([0-9])+.([0-9]+)', o, re.MULTILINE)
+        m = re.search('MPlayer ([0-9])+.([0-9]+)', o, re.MULTILINE)
         if m:
             ver = tuple(int(i) for i in m.groups())
 
@@ -434,3 +474,56 @@ def _get_mplayer_version(exename):
             dbg("%sFailed to detect mplayer version%s", c.r, c.w)
 
     return ver
+
+def _get_metadata(song_title) :
+    ''' Get metadata from a song title '''
+    t = re.sub("[\(\[].*?[\)\]]", "", song_title.lower())
+    t = t.split('-')
+
+    if len(t) != 2 : #If len is not 2, no way of properly knowing title for sure
+        t = t[0]
+        t = t.split(':')
+        if len(t) != 2 :  #Ugly, but to be safe in case all these chars exist, Will improve
+            t = t[0]
+            t = t.split('|')
+            if len(t) != 2 :
+                return None
+
+    t[0] = re.sub("(ft |ft.|feat |feat.).*.", "", t[0])
+    t[1] = re.sub("(ft |ft.|feat |feat.).*.", "", t[1])
+
+    t[0] = t[0].strip()
+    t[1] = t[1].strip()
+
+    metadata = _get_metadata_from_lastfm(t[0], t[1])
+
+    if metadata != None :
+        return metadata
+
+    metadata = _get_metadata_from_lastfm(t[1], t[0])
+    return metadata
+
+def _get_metadata_from_lastfm(artist, track) :
+    ''' Try to get metadata with a given artist and track '''
+    url = 'http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=12dec50313f885d407cf8132697b8712&'
+    url += urllib.parse.urlencode({"artist" :  artist}) + '&'
+    url += urllib.parse.urlencode({"track" :  track}) + '&'
+    url += '&format=json'
+
+    resp = urllib.request.urlopen(url)
+
+    metadata = dict()
+
+    data = json.loads(resp.read())
+
+    if 'track' != list(data.keys())[0] :
+        return None
+    try :
+        metadata['track_title'] = data['track']['name']
+        metadata['artist'] = data['track']['artist']['name']
+        metadata['album'] = data['track']['album']['title']
+        metadata['album_art_url'] = data['track']['album']['image'][-1]['#text']
+    except :
+        return None
+
+    return metadata

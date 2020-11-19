@@ -15,10 +15,10 @@ def playlist_remove(name):
             name = int(name) - 1
             name = sorted(g.userpl)[name]
 
-        del g.userpl[name]
+        playlists.delete(name)
         g.message = "Deleted playlist %s%s%s" % (c.y, name, c.w)
         g.content = content.playlists_display()
-        playlists.save()
+        #playlists.save()
 
     else:
         g.message = util.F('pl not found advise ls') % name
@@ -102,7 +102,7 @@ def save_last():
         # save using artist name in postion 1
         if g.model:
             saveas = g.model[0].title[:18].strip()
-            saveas = re.sub(r"[^-\w]", "-", saveas, re.UNICODE)
+            saveas = re.sub(r"[^-\w]", "-", saveas, flags=re.UNICODE)
 
         # loop to find next available name
         post = 0

@@ -8,11 +8,17 @@ from . import c, paths
 from .playlist import Playlist
 
 
+volume = None
 transcoder_path = "auto"
 delete_orig = True
 encoders = []
 muxapp = False
 meta = {}
+artist = "" # Mostly used for scrobbling purposes
+album = "" # Mostly used for scrobbling purposes
+scrobble = False
+scrobble_queue = []
+lastfm_network = None
 detectable_size = True
 command_line = False
 debug_mode = False
@@ -27,6 +33,7 @@ browse_mode = "normal"
 preloading = []
 # expiry = 5 * 60 * 60  # 5 hours
 no_clear_screen = False
+no_textart = False
 max_retries = 3
 max_cached_streams = 1500
 username_query_cache = collections.OrderedDict()
@@ -47,9 +54,21 @@ CFFILE = os.path.join(paths.get_config_dir(), "config")
 TCFILE = os.path.join(paths.get_config_dir(), "transcode")
 OLD_PLFILE = os.path.join(paths.get_config_dir(), "playlist" + suffix)
 PLFILE = os.path.join(paths.get_config_dir(), "playlist_v2")
-HISTFILE = os.path.join(paths.get_config_dir(), "play_history")
+PLFOLDER = os.path.join(paths.get_config_dir(), "playlists")
+OLDHISTFILE = os.path.join(paths.get_config_dir(), "play_history")
+HISTFILE = os.path.join(paths.get_config_dir(), "play_history.m3u")
 CACHEFILE = os.path.join(paths.get_config_dir(), "cache_py_" + sys.version[0:5])
 READLINE_FILE = None
+categories = {
+        "film":      1,
+        "autos":     2,
+        "music":    10,
+        "sports":   17,
+        "travel":   19,
+        "gaming":   20,
+        "blogging": 21,
+        "news":     25
+}
 playerargs_defaults = {
     "mpv": {
         "msglevel": {"<0.4": "--msglevel=all=no:statusline=status",
@@ -71,7 +90,7 @@ argument_commands = []
 commands = []
 
 text = {
-    "exitmsg": ("*mps-youtube - *http://github.com/np1/mps-youtube*"
+    "exitmsg": ("*mps-youtube - *https://github.com/mps-youtube/mps-youtube*"
                 "\nReleased under the GPLv3 license\n"
                 "(c) 2014, 2015 np1 and contributors*\n"""),
     "exitmsg_": (c.r, c.b, c.r, c.w),
@@ -148,4 +167,16 @@ text = {
     'help topic': ("  Enter *help <topic>* for specific help:"),
     'help topic_': (c.y, c.w),
     'songs rm': '*&&* tracks removed &&',
-    'songs rm_': (c.y, c.w)}
+    'songs rm_': (c.y, c.w),
+    'mkp empty': "*&&* is either empty or doesn't exist",
+    'mkp empty_': (c.b, c.r),
+    'mkp parsed': "*&&* entries found in *&&*",
+    'mkp parsed_': (c.g, c.w, c.b, c.w),
+    'mkp finding': "Finding the best match for *&&* ...",
+    'mkp finding_': (c.y, c.w),
+    'mkp desc unknown': "Unknown tabletype, *do a new search*",
+    'mkp desc unknown_': (c.y, c.w),
+    'mkp desc which data': "Which *tracks* to include?",
+    'mkp desc which data_': (c.y, c.w),
+    'mkp no valid': "*No valid tracks found in that description*",
+    'mkp no valid_': (c.y, c.w)}

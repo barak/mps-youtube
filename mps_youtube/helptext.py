@@ -1,3 +1,6 @@
+"""
+    Holds all help text
+"""
 from . import c, g
 from .util import get_near_name, F
 
@@ -33,25 +36,43 @@ def helptext():
     {2}set search_music true{1}  - search only YouTube music category.
 
     {2}/<query>{1} or {2}.<query>{1} to search for videos. e.g., {2}/daft punk{1}
+    Search Arguments:
+    {2}-d, --duration{1}    Can be any/short/medium/long
+    {2}-a, --after{1}       Date in {2}YYYY-MM-DD{1} or {2}YYYY-MM-DD{1}T{2}HH:MM{1} format
+    {2}-l, --live{1}        Limit search to livestreams
+    {2}-c, --category{1}    Search within a category, (number or string)
+                      Available categories:
+                      {2}{3}{1}
+
     {2}//<query>{1} or {2}..<query>{1} - search for YouTube playlists. e.g., \
     {2}//80's music{1}
     {2}n{1} and {2}p{1} - continue search to next/previous pages.
     {2}p <number>{1} - switch to page <number>.
 
     {2}album <album title>{1} - Search for matching tracks using album title
+    {2}channels <Channel name>{1} - Search for channels by channelname
+    {2}live <category>{1} - Search for livestreams from a range of categories. 
+    Categories: {2}{3}{1}
+
+    {2}mkp <fullfilepath>{1} - Creates a playlist automatically with video titles from fullfilepath
+    <fullfilepath>: Full path of text file with one title per line
+    
+    {2}mkp -d <search result number>{1} - Create a playlist based on tracks
+    listed in that videos description. (Alternatively one can use {2}--description{1})
+    
     {2}user <username>{1} - list YouTube uploads by <username>.
     {2}user <username>/<query>{1} - as above, but matches <query>.
     {2}userpl <username>{1} - list YouTube playlists created by <username>.
     {2}pl <url or id>{1} - Open YouTube playlist by url or id.
     {2}url <url or id>{1} - Retrieve specific YouTube video by url or id.
     {2}url <url> <url> ... <url>{1} - Retrieve specific YouTube videos by url or id.
-    {2}url_file <file_absolute_path>{1} - Retrieve YouTube videos by url or id from a .txt file. 
+    {2}url_file <file_absolute_path>{1} - Retrieve YouTube videos by url or id from a .txt file.
     File format : .txt, with one url or id by line.
 
     {2}r <number>{1} - show videos related to video <number>.
     {2}u <number>{1} - show videos uploaded by uploader of video <number>.
     {2}c <number>{1} - view comments for video <number>
-    """.format(c.ul, c.w, c.y)),
+    """.format(c.ul, c.w, c.y, ", ".join(g.categories.keys()))),
 
         ("edit", "Editing / Manipulating Results", """
     {0}Editing and Manipulating Results{1}
@@ -158,6 +179,7 @@ def helptext():
 
         {2}history{1} - displays a list of songs contained in history
         {2}history clear{1} - clears the song history
+        {2}history recent{1} - displays a list of recent played songs
     """.format(c.ul, c.w, c.y)),
 
         ("invoke", "Invocation Parameters", """
@@ -189,7 +211,7 @@ def helptext():
     {2}set all default{1} - restore default settings
     {2}set checkupdate true|false{1} - check for updates on exit
     {2}set columns <columns>{1} - select extra displayed fields in search results:
-         (valid: views comments rating date user likes dislikes category)
+         (valid: views comments rating date time user likes dislikes category ytid)
     {2}set ddir <download direcory>{1} - set where downloads are saved
     {2}set download_command <command>{1} - type {2}help dl-command{1} for info
     {2}set encoder <number>{1} - set encoding preset for downloaded files
@@ -202,6 +224,10 @@ def helptext():
     {2}set overwrite true|false{1} - overwrite existing files (skip if false)
     {2}set player <player app>{1} - use <player app> for playback
     {2}set playerargs <args>{1} - use specified arguments with player
+    {2}set lastfm_username <username>{1} - scrobble to this Last.fm userprofile
+    {2}set lastfm_password <password>{1} - Last.fm password (saved in hash form)
+    {2}set lastfm_api <key>{1} - API key needed for Last.fm mps-yt authorization
+    {2}set lastfm_secret <key>{1} - secret for the Last.fm API key
     {2}set search_music true|false{1} - search only music (all categories if false)
     {2}set show_mplayer_keys true|false{1} - show keyboard help for mplayer and mpv
     {2}set show_status true|false{1} - show status messages and progress
@@ -209,10 +235,29 @@ def helptext():
     {2}set window_pos <top|bottom>-<left|right>{1} - set player window position
     {2}set window_size <number>x<number>{1} - set player window width & height
     {2}set audio_format <auto|m4a|webm>{1} - set default music audio format
+    {2}set video_format <auto|mp4|webm|3gp>{1} - set default music video format
     {2}set api_key <key>{1} - use a different API key for accessing the YouTube Data API
+    {2}set set_title true|false{1} - change window title
     """.format(c.ul, c.w, c.y, '\n{0}set max_results <number>{1} - show <number> re'
                'sults when searching (max 50)'.format(c.y, c.w) if not
                g.detectable_size else '')),
+
+        ("lastfm", "Last.fm configuration", """
+    {0}Configure Last.fm{1}
+
+    pylast needs to be installed for Last.fm support. See https://github.com/pylast/pylast.
+
+    Use {2}set{1} to set your Last.fm login credenditals, e.g. {2}set lastfm_username jane_doe{1}.
+    Similarly, you also have to provide an API key and it's corresponding secret.
+    An API key can be retrieved from https://www.last.fm/api/account/create.
+
+    Your Last.fm configuration is saved and automatically reloaded when mps-youtube starts.
+
+    After having set the required information, a connection can also be established
+    with {2}lastfm_connect{1}. Additionally, {2}lastfm_connect{1} provides verbose error messages.
+
+    For now, Last.fm support only works with the {2}album{1} command.
+    """.format(c.ul, c.w, c.y)),
 
         ("tips", "Advanced Tips", """
     {0}Advanced Tips{1}
@@ -275,7 +320,7 @@ def get_help(choice):
              "invoke": "command commands mpsyt invocation".split(),
 
              "search": ("user userpl pl pls r n p url album "
-                        "editing result results related remove swop".split()),
+                        "editing result results related remove swop mkp --description".split()),
 
              "edit": ("editing manupulate manipulating rm mv sw edit move "
                       "swap shuffle".split()),

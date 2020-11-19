@@ -7,6 +7,12 @@ from urllib.request import urlopen
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 
+try:
+    import pylast
+    has_pylast = True
+except ImportError:
+    has_pylast = False
+
 import pafy
 
 from . import g, c, paths, util
@@ -14,7 +20,7 @@ from . import g, c, paths, util
 
 mswin = os.name == "nt"
 
-class ConfigItem(object):
+class ConfigItem:
 
     """ A configuration item. """
 
@@ -269,8 +275,14 @@ def check_player(player):
             msg = "Player application %s%s%s not found" % (c.r, player, c.w)
             return dict(valid=False, message=msg)
 
+def check_lastfm_password(password):
+    if not has_pylast:
+        msg = "pylast not installed"
+        return dict(valid=False, message=msg)
+    password_hash = pylast.md5(password)
+    return dict(valid=True, value=password_hash)
 
-class _Config(object):
+class _Config:
 
     """ Holds various configuration values. """
 
@@ -302,11 +314,20 @@ class _Config(object):
             ConfigItem("window_size", "",
                 check_fn=check_win_size, require_known_player=True),
             ConfigItem("download_command", ''),
+            ConfigItem("lastfm_username", ''),
+            ConfigItem("lastfm_password", '', check_fn=check_lastfm_password),
+            ConfigItem("lastfm_api_key", ''),
+            ConfigItem("lastfm_api_secret", ''),
             ConfigItem("audio_format", "auto",
                 allowed_values="auto webm m4a".split()),
+            ConfigItem("video_format", "auto",
+                allowed_values="auto webm mp4 3gp".split()),
             ConfigItem("api_key", "AIzaSyCIM4EzNqi1in22f4Z3Ru3iYvLaY8tc3bo",
-                check_fn=check_api_key)
-            ] 
+                check_fn=check_api_key),
+            ConfigItem("autoplay", False),
+            ConfigItem("set_title", True),
+            ConfigItem("mpris", not mswin),
+            ]
 
     def __getitem__(self, key):
         # TODO: Possibly more efficient algorithm, w/ caching

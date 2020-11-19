@@ -1,11 +1,12 @@
 import sys
 import webbrowser
+import random
 from urllib.error import HTTPError, URLError
 
-from .. import g, c, streams, util, content
+from .. import g, c, streams, util, content, config
 from . import command, WORD, RS
 from .songlist import plist
-from .search import yt_url
+from .search import yt_url, related
 from ..player import play_range
 
 
@@ -32,11 +33,20 @@ def play_pl(name):
 
 
 @command(r'(%s{0,3})([-,\d\s\[\]]{1,250})\s*(%s{0,3})$' %
-        (RS, RS))
+         (RS, RS))
 def play(pre, choice, post=""):
+
     """ Play choice.  Use repeat/random if appears in pre/post. """
     # pylint: disable=R0914
     # too many local variables
+
+    # Im just highjacking this if g.content is a
+    # content.Content class
+    if isinstance(g.content, content.Content):
+        play_call = getattr(g.content, "_play", None)
+        if callable(play_call):
+            play_call(pre, choice, post)
+        return
 
     if g.browse_mode == "ytpl":
 
@@ -82,8 +92,23 @@ def play(pre, choice, post=""):
             if len(g.model) > chosen + 1:
                 streams.preload(g.model[chosen + 1], override=override)
 
-        play_range(songlist, shuffle, repeat, override)
-        g.content = content.generate_songlist_display()
+        if g.scrobble:
+            old_queue = g.scrobble_queue
+            g.scrobble_queue = [g.scrobble_queue[x - 1] for x in selection]
+
+        try:
+            play_range(songlist, shuffle, repeat, override)
+        except KeyboardInterrupt:
+            return
+        finally:
+            g.content = content.generate_songlist_display()
+
+        if g.scrobble:
+            g.scrobble_queue = old_queue
+
+        if config.AUTOPLAY.get:
+            related(selection.pop())
+            play(pre, str(random.randint(1, 15)), post="")
 
 
 @command(r'(%s{0,3})(?:\*|all)\s*(%s{0,3})' %

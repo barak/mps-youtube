@@ -28,7 +28,8 @@ import os
 import pafy
 
 from . import g, c, commands, screen, history, util
-from . import __version__, playlists, content
+from . import __version__, playlists, content, listview
+from . import config
 
 try:
     import readline
@@ -105,7 +106,8 @@ def prompt_for_exit():
 
 def main():
     """ Main control loop. """
-    util.set_window_title("mpsyt")
+    if config.SET_TITLE.get:
+        util.set_window_title("mpsyt")
 
     if not g.command_line:
         g.content = content.logo(col=c.g, version=__version__) + "\n\n"
@@ -115,10 +117,15 @@ def main():
     # open playlists from file
     playlists.load()
 
-    #open history from file
+    # open history from file
     history.load()
 
-    arg_inp = ' '.join(g.argument_commands)
+    # setup scrobbling
+    commands.lastfm.init_network(verbose=False)
+    prev_model = []
+    scrobble_funcs = [commands.album_search.search_album]
+
+    arg_inp = " ".join(g.argument_commands)
 
     prompt = "> "
     arg_inp = arg_inp.replace(r",,", "[mpsyt-comma]")
@@ -139,6 +146,9 @@ def main():
 
         for i in g.commands:
             if matchfunction(i.function, i.regex, userinput):
+                if prev_model != g.model and not i.function in scrobble_funcs:
+                    g.scrobble = False
+                prev_model = g.model
                 break
 
         else:

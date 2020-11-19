@@ -124,7 +124,7 @@ def download(dltype, num):
     g.content = content.generate_songlist_display()
 
 
-@command(r'(da|dv)\s+((?:\d+\s\d+|-\d|\d+-|\d,)(?:[\d\s,-]*))')
+@command(r'(da|dv)\s+((?:\d+\s\d+|-\d+|\d+-|\d+,)(?:[\d\s,-]*))')
 def down_many(dltype, choice, subdir=None):
     """ Download multiple items. """
     choice = util.parse_multi(choice)
@@ -375,8 +375,13 @@ def _download(song, filename, url=None, audio=False, allow_transcode=True):
         outfh.write(chunk)
         elapsed = time.time() - t0
         bytesdone += len(chunk)
-        rate = (bytesdone / 1024) / elapsed
-        eta = (total - bytesdone) / (rate * 1024)
+        rate = 0
+        if elapsed != 0:
+            rate = (bytesdone / 1024) / elapsed
+        if rate:
+            eta = (total - bytesdone) / (rate * 1024)
+        else:
+            eta = 0
         stats = (c.y, bytesdone, c.w, bytesdone * 1.0 / total, rate, eta)
 
         if not chunk:

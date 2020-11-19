@@ -20,7 +20,7 @@ Features
 - Convert to mp3 & other formats (requires ffmpeg or avconv)
 - View video comments
 - Works with Python 3.x
-- Works with Windows, Linux and Mac OS X 
+- Works with Windows, Linux and Mac OS X
 - Requires mplayer or mpv
 
 This project is based on `mps <https://github.com/np1/mps>`_, a terminal based program to search, stream and download music.  This implementation uses YouTube as a source of content and can play and download video as well as audio.  The `pafy <https://github.com/np1/pafy>`_ library handles interfacing with YouTube.
@@ -68,7 +68,7 @@ Music Album Matching
 
 .. image:: http://np1.github.io/mpsyt-images2/album-2.png
 
-An album title can be specified and mps-youtube will attempt to find matches for each track of the album, based on title and duration.  Type ``help search`` for more info.  
+An album title can be specified and mps-youtube will attempt to find matches for each track of the album, based on title and duration.  Type ``help search`` for more info.
 
 Customisation
 ~~~~~~~~~~~~~
@@ -88,19 +88,37 @@ Type ``help config`` for help on configuration options
 
 Installation
 ------------
-
+Linux
+~~~~~
 Using `pip <http://www.pip-installer.org>`_::
-    
+
     [sudo] pip3 install mps-youtube
 
-Installing youtube_dl is highly recommended::
+To install the experimental development version and try the latest features:
 
-    [sudo] pip3 install youtube_dl
+    [sudo] pip3 install -U git+https://github.com/mps-youtube/mps-youtube.git
 
-Additional Mac OS X installation notes
+Installing youtube-dl is highly recommended::
+
+    [sudo] pip3 install youtube-dl
+
+For mpris2 support, install the python bindings for dbus and gobject::
+
+    [sudo] pip3 install dbus-python pygobject
+
+Ubuntu
+~~~~~~
+You can install mps-youtube directly from the official repositories:
+
+    [sudo] apt install mps-youtube
+
+macOS X
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-Install mplayer with `MacPorts <http://www.macports.org>`_::
+Install mpv (recommended player) with `Homebrew <http://brew.sh>`_::
+
+    brew install mpv
+
+Alternately, you can install mplayer with `MacPorts <http://www.macports.org>`_::
 
     sudo port install MPlayer
 
@@ -117,18 +135,22 @@ Install the python `colorama <https://pypi.python.org/pypi/colorama>`_ module to
 
     pip3 install colorama
 
-Download mplayer for your CPU type from the "Build Selection table" `here <http://oss.netfarm.it/mplayer-win32.php>`_.
+Mpsyt requires a player to use as a backend, with either mpv or mplayer supported. Mpv is the recommended option.
+
+Mpv can be downloaded from https://mpv.srsfckn.biz/
+
+Extract both ``mpv.exe`` and ``mpv.com`` to the same folder as ``mpsyt.exe`` or to a folder in the system path.
+
+Alternately, mplayer can be downloaded from http://oss.netfarm.it/mplayer
 
 Extract the ``mplayer.exe`` file, saving it to the folder that ``mpsyt.exe`` resides in (usually ``C:\PythonXX\Scripts\``) or to a folder in the system path.
-
-Alternatively to mplayer, use ``mpv.exe`` which can be downloaded from: http://mpv.io/installation/
 
 Run via Docker container
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Using `Docker <http://www.docker.com>`_, run with::
 
-    sudo docker run -v /dev/snd:/dev/snd -it --rm --privileged --name mpsyt mpsyt
+    sudo docker run --device /dev/snd -it --rm --name mpsyt rothgar/mpsyt
 
 Additional Docker notes
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -161,12 +183,12 @@ Usage
 -----
 
 mps-youtube is run on the command line using the command::
-    
+
     mpsyt
-    
+
 Enter ``h`` from within the program for help.
 
 IRC
 ---
 
-An IRC channel `#mps-youtube` for the project is available on Freenode (chat.freenode.net:6697).
+An IRC channel `#mps-youtube` for the project is available on Freenode (chat.freenode.net:6697). You can join directly by clicking `this link <https://webchat.freenode.net/?randomnick=1&channels=%23mps-youtube&uio=d4>`_.

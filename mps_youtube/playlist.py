@@ -1,14 +1,13 @@
 import time
 
 
-class Playlist(object):
+class Playlist:
 
     """ Representation of a playist, has list of songs. """
 
     def __init__(self, name=None, songs=None):
         """ class members. """
         self.name = name
-        self.creation = time.time()
         self.songs = songs or []
 
     def __len__(self):
@@ -33,10 +32,10 @@ class Playlist(object):
         return duration
 
 
-class Video(object):
+class Video:
 
     """ Class to represent a YouTube video. """
-
+    description = ""
     def __init__(self, ytid, title, length):
         """ class members. """
         self.ytid = ytid

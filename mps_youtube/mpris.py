@@ -41,7 +41,7 @@ PLAYER_INTERFACE = 'org.mpris.MediaPlayer2.Player'
 PROPERTIES_INTERFACE = 'org.freedesktop.DBus.Properties'
 MPRIS_PATH = '/org/mpris/MediaPlayer2'
 
-class Mpris2Controller(object):
+class Mpris2Controller:
 
     """
         Controller for various MPRIS objects.
@@ -291,7 +291,7 @@ class Mpris2MediaPlayer(dbus.service.Object):
                 self.Seeked(newval)
 
         elif name == 'metadata' and val:
-            trackid, title, length, arturl = val
+            trackid, title, length, arturl, artist, album = val
             # sanitize ytid - it uses '-_' which are not valid in dbus paths
             trackid = re.sub('[^a-zA-Z0-9]', '', trackid)
 
@@ -301,7 +301,9 @@ class Mpris2MediaPlayer(dbus.service.Object):
                     '/CurrentPlaylist/ytid/' + trackid, variant_level=1),
                 'mpris:length' : dbus.Int64(length * 10**6, variant_level=1),
                 'mpris:artUrl' : dbus.String(arturl, variant_level=1),
-                'xesam:title' : dbus.String(title, variant_level=1) }
+                'xesam:title' : dbus.String(title, variant_level=1),
+                'xesam:artist' : dbus.Array(artist, 's', 1),
+                'xesam:album' : dbus.String(album, variant_level=1) }
 
             if newval != oldval:
                 self.properties[PLAYER_INTERFACE]['read_only']['Metadata'] = newval
@@ -432,7 +434,7 @@ class Mpris2MediaPlayer(dbus.service.Object):
             Sets the current track position in microseconds.
         """
         if track_id == self.properties[PLAYER_INTERFACE]['read_only']['Metadata']['mpris:trackid']:
-            self._sendcommand(["seek", position / 10**6, 2])
+            self._sendcommand(["seek", position / 10**6, 'absolute' if self.mpv else 2])
 
     @dbus.service.method(PLAYER_INTERFACE, in_signature='s')
     def OpenUri(self, uri):
@@ -513,13 +515,39 @@ class Mpris2MediaPlayer(dbus.service.Object):
         """
         pass
 
+class MprisConnection(object):
+    """
+        Object encapsulating pipe for communication with Mpris2Controller.
+        This object wraps send to ensure communicating process never crashes,
+        even when Mpris2Controller existed or crashed.
+    """
+    def __init__(self, connection):
+        super(MprisConnection, self).__init__()
+        self.connection = connection
+
+    def send(self, obj):
+        """
+            Send an object to the other end of the connection
+        """
+        if self.connection:
+            try:
+                self.connection.send(obj)
+            except BrokenPipeError:
+                self.connection = None
+                print('MPRIS process exited of crashed.')
+
+
 def main(connection):
     """
         runs mpris interface and listens for changes
         connection - pipe to communicate with this module
     """
 
-    mprisctl = Mpris2Controller()
+    try:
+        mprisctl = Mpris2Controller()
+    except ImportError: # gi.repository import GLib
+        print("could not load MPRIS interface. missing libraries.")
+        return
     try:
         mprisctl.acquire()
     except dbus.exceptions.DBusException:
