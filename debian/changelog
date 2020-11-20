@@ -14,8 +14,9 @@ mps-youtube (0.2.8-1) unstable; urgency=medium
   * Rules do not require root.
   * Add salsa packaging repo.
   * Configure git-buildpackage to use upstream tags.
+  * Add self as co-maintainer (thanks Zlatan).
 
- -- Barak A. Pearlmutter <bap@debian.org>  Thu, 19 Nov 2020 21:23:36 +0000
+ -- Barak A. Pearlmutter <bap@debian.org>  Fri, 20 Nov 2020 12:48:49 +0000
 
 mps-youtube (0.2.7.1-2) unstable; urgency=medium
 
