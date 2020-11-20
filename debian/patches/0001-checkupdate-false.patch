@@ -1,0 +1,23 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Fri, 20 Nov 2020 14:23:31 +0000
+Subject: checkupdate false
+
+Do not check for updates on each exit.
+See https://bugs.debian.org/900369
+---
+ mps_youtube/config.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mps_youtube/config.py b/mps_youtube/config.py
+index 22253e7..7be2ccb 100644
+--- a/mps_youtube/config.py
++++ b/mps_youtube/config.py
+@@ -300,7 +300,7 @@ class _Config:
+             ConfigItem("playerargs", ""),
+             ConfigItem("encoder", 0, minval=0, check_fn=check_encoder),
+             ConfigItem("notifier", ""),
+-            ConfigItem("checkupdate", True),
++            ConfigItem("checkupdate", False),
+             ConfigItem("show_mplayer_keys", True, require_known_player=True),
+             ConfigItem("fullscreen", False, require_known_player=True),
+             ConfigItem("show_status", True),

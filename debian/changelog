@@ -1,3 +1,9 @@
+mps-youtube (0.2.8-2) UNRELEASED; urgency=medium
+
+  * Patch to not check for updates upon exit (closes: #900369)
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Fri, 20 Nov 2020 14:25:05 +0000
+
 mps-youtube (0.2.8-1) unstable; urgency=medium
 
   * New upstream release
