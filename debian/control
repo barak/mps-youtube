@@ -13,7 +13,7 @@ Vcs-Browser: https://salsa.debian.org/debian/mps-youtube
 Package: mps-youtube
 Architecture: all
 Depends: ${misc:Depends}, python3-pafy (>= 0.5.1), mpv, ffmpeg,  ${python3:Depends}, python3-pkg-resources
-Recommends: libnotify4, xclip, python3-dbus, python3-gi
+Recommends: libnotify4, xclip, python3-dbus, python3-gi, youtube-dl
 Description: Terminal based YouTube jukebox with playlist management
  This project is a terminal based YouTube client with an interactive text
  interface and in-built help. It can be used to search YouTube, create local
