@@ -1,11 +1,13 @@
-mps-youtube (0.2.8-2) unstable; urgency=medium
+mps-youtube (2.9.4-1) unstable; urgency=medium
 
   * Patch to not check for updates upon exit (closes: #900369)
   * README.rst, "Installing youtube-dl is highly recommended" (closes: #884125)
   * Update standards version to 4.6.0, no changes needed.
-  * Track upstream mods
+  * New upstream release
+  * Set upstream metadata fields: Bug-Database, Bug-Submit, Repository-Browse.
+  * Update standards version to 4.6.2, no changes needed.
 
- -- Barak A. Pearlmutter <bap@debian.org>  Mon, 10 Jan 2022 17:29:57 +0000
+ -- Barak A. Pearlmutter <bap@debian.org>  Wed, 01 Feb 2023 20:59:04 +0000
 
 mps-youtube (0.2.8-1) unstable; urgency=medium
 
