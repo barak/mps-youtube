@@ -4,7 +4,6 @@
 from os import path
 from random import choice
 import string
-import pafy
 
 from .. import content, g, playlists, screen, util, listview
 from ..playlist import Playlist
@@ -78,6 +77,7 @@ def find_best_match(query):
         res, score = album_search._best_song_match(
             results, query, 0.1, 1.0, 0.0)
         return res
+    return None
 
 
 def random_plname():
